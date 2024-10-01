@@ -4,12 +4,21 @@
 #include "core/libraries/system/posix.h"
 #include "common/logging/log.h"
 #include "core/libraries/libs.h"
+#ifdef WIN32
 #include <process.h>
-
+static int func_getpid() {
+    return _getpid();
+}
+#elif __linux__
+#include <unistd.h> 
+static int func_getpid() {
+    return getpid();
+}
+#endif
 namespace Libraries::Posix {
 
 int PS4_SYSV_ABI internal_getpid() {
-    return _getpid();
+    return func_getpid();
 }
 
 void Registerlibsceposix(Core::Loader::SymbolsResolver* sym) {
