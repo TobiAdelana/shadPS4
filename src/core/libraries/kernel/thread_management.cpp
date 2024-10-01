@@ -976,6 +976,19 @@ int PS4_SYSV_ABI scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr) {
         return SCE_KERNEL_ERROR_EINVAL;
     }
 
+#if _WIN32_WINNT >= 0x0602 
+    void* staddr = nullptr;
+    size_t size{};
+    ULONG_PTR low;
+    ULONG_PTR high;
+    GetCurrentThreadStackLimits(&low, &high);
+    staddr = (void*)low;
+    size = high - low;
+    pthread_attr_setstack(&thread->attr->pth_attr, staddr, size);
+    
+#endif
+
+
     return pthread_copy_attributes(attr, &thread->attr);
 }
 
