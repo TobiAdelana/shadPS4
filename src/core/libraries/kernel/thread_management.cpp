@@ -349,7 +349,7 @@ int PS4_SYSV_ABI scePthreadAttrSetstackaddr(ScePthreadAttr* attr, void* addr) {
     pthread_attr_getstacksize(&(*attr)->pth_attr, &stack_size);
 
     int result = pthread_attr_setstack(&(*attr)->pth_attr, addr, stack_size);
-
+    
     return result == 0 ? SCE_OK : SCE_KERNEL_ERROR_EINVAL;
 }
 
@@ -961,13 +961,9 @@ static int pthread_copy_attributes(ScePthreadAttr* dst, const ScePthreadAttr* sr
     result = (result == 0 ? scePthreadAttrSetinheritsched(dst, inherit_sched) : result);
     result = (result == 0 ? scePthreadAttrSetschedparam(dst, &param) : result);
     result = (result == 0 ? scePthreadAttrSetschedpolicy(dst, policy) : result);
-    if (stack_addr != nullptr) {
-        result = (result == 0 ? scePthreadAttrSetstackaddr(dst, stack_addr) : result);
+    if (stack_addr != nullptr && stack_size != 0) {
+        result = (result == 0 ? scePthreadAttrSetstack(dst, stack_addr, stack_size) : result);
     }
-    if (stack_size != 0) {
-        result = (result == 0 ? scePthreadAttrSetstacksize(dst, stack_size) : result);
-    }
-
     return result;
 }
 
@@ -985,9 +981,14 @@ int PS4_SYSV_ABI scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr) {
     staddr = (void*)low;
     size = high - low;
     pthread_attr_setstack(&thread->attr->pth_attr, staddr, size);
+
+    int test = 43;
+    int* current = &test;
+    if (!(((char*)current > (char*)staddr) && ((char*)current < (char*)staddr + size))) {
+        int y = 3;
+    }
 #elif defined(__linux__)
     pthread_getattr_np(thread->pth, &thread->attr->pth_attr);
-
 #endif
     return pthread_copy_attributes(attr, &thread->attr);
 }

@@ -186,6 +186,7 @@ int PS4_SYSV_ABI scePthreadCreate(ScePthread* thread, const ScePthreadAttr* attr
 
 int PS4_SYSV_ABI scePthreadSetprio(ScePthread thread, int prio);
 int PS4_SYSV_ABI scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr);
+int PS4_SYSV_ABI scePthreadAttrSetstack(ScePthreadAttr* attr, void* addr, size_t size);
 
 /***
  * Mutex calls
